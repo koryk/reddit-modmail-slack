@@ -1,0 +1,11 @@
+slack:
+   key: slackbot-remote-control-key
+   room: slack-room
+   name: slack-name
+
+last_message_file: last_message
+
+reddit:
+   user: username
+   password: password
+   subreddit: subreddit
