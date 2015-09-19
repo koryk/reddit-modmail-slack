@@ -69,22 +69,12 @@ mod_mail = r.get_mod_mail(subreddit, before=before, limit=20)
 first = True
 max_created = before
 for msg in mod_mail:
-    print "created time " + str(msg.created)
-    print "greater than " + str(before)
-    if msg.created > max_created:
+    if float(msg.created) > float(max_created):
         max_created = msg.created
-    print "parent id is " + str(msg.parent_id)
     if msg.parent_id is not None or isModerator(msg.author):
-        print "FUCKING FUCK YES"
         continue
     if float(msg.created) <= float(before):
-        print "FUCKING FUCK"
         continue
-    print "----"
-    print msg.body
-    print msg.name
-    print msg.author
-    print msg.created
     send_message("New modmail from " + str(msg.author) + " https://www.reddit.com/message/messages/"  + str(msg.id)  + "\n" + str(msg.subject) +  " :\n" +"--------------------\n" +  msg.body + "\n--------------------")
 
 
