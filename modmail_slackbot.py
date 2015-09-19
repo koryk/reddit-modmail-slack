@@ -8,6 +8,7 @@ import requests
 import praw
 import os.path
 import unicodedata
+import time
 
 # Config values
 moderators = None
@@ -22,15 +23,13 @@ fname=""
 def update_last_message(id):
     target = open(fname, 'w')
     target.write(str(id))
-    print "writing last message " + id
     target.close()
 
 def get_last_message():
     if (not os.path.isfile(fname)):
-        update_last_message("0");
+        update_last_message(time.time());
     target = open(fname, 'r')
     last_message = target.read()
-    print "last_message is " + last_message
     target.close()
     return last_message
 
@@ -66,19 +65,27 @@ r.login(reddit_user,reddit_password)
 
 reddit = r.get_subreddit(subreddit)
 before = get_last_message()
-mod_mail = r.get_mod_mail(subreddit, before=before)
+mod_mail = r.get_mod_mail(subreddit, before=before, limit=20)
 first = True
+max_created = before
 for msg in mod_mail:
-    if msg.name == before:
-        break
-    if first is True:
-        update_last_message(msg.name)
-        first = False
+    print "created time " + str(msg.created)
+    print "greater than " + str(before)
+    if msg.created > max_created:
+        max_created = msg.created
+    print "parent id is " + str(msg.parent_id)
     if msg.parent_id is not None or isModerator(msg.author):
+        print "FUCKING FUCK YES"
+        continue
+    if float(msg.created) <= float(before):
+        print "FUCKING FUCK"
         continue
     print "----"
     print msg.body
     print msg.name
     print msg.author
     print msg.created
-    send_message("New modmail from " + str(msg.author) + " https://www.reddit.com/message/messages/"  + str(msg.id)  +  " :\n" +"--------------------\n" +  msg.body + "\n--------------------")
+    send_message("New modmail from " + str(msg.author) + " https://www.reddit.com/message/messages/"  + str(msg.id)  + "\n" + str(msg.subject) +  " :\n" +"--------------------\n" +  msg.body + "\n--------------------")
+
+
+update_last_message(max_created)
